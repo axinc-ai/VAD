@@ -12,7 +12,7 @@ point_cloud_range = [-15.0, -30.0, -2.0, 15.0, 30.0, 2.0]
 voxel_size = [0.15, 0.15, 4]
 
 img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+    mean=[103.530, 116.280, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
 # For nuScenes we usually do 10-class detection
 class_names = [
     'car', 'truck', 'construction_vehicle', 'bus', 'trailer', 'barrier',
@@ -395,7 +395,7 @@ data = dict(
               pipeline=test_pipeline, bev_size=(bev_h_, bev_w_),
               classes=class_names, modality=input_modality, samples_per_gpu=1,
               map_classes=map_classes,
-              # map_ann_file=data_root + 'nuscenes_map_anns_val.json',
+              map_ann_file=data_root + 'nuscenes_map_anns_val.json',
               map_fixed_ptsnum_per_line=map_fixed_ptsnum_per_gt_line,
               map_eval_use_same_gt_sample_num_flag=map_eval_use_same_gt_sample_num_flag,
               use_pkl_result=True,
