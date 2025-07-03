@@ -63,6 +63,6 @@ git clone https://github.com/hustvl/VAD.git
 ```shell
 cd /path/to/VAD
 mkdir ckpts
-cd ckpts 
+cd ckpts
 wget https://download.pytorch.org/models/resnet50-19c8e357.pth
 ```

@@ -345,7 +345,7 @@ def _fill_trainval_infos(nusc,
             gt_boxes = np.concatenate([locs, dims, -rots - np.pi / 2], axis=1)
             assert len(gt_boxes) == len(
                 annotations), f'{len(gt_boxes)}, {len(annotations)}'
-            
+
             # get future coords for each box
             # [num_box, fut_ts*2]
             num_box = len(boxes)
@@ -359,7 +359,7 @@ def _fill_trainval_infos(nusc,
             for i, anno in enumerate(annotations):
                 cur_box = boxes[i]
                 cur_anno = anno
-                agent_lcf_feat[i, 0:2] = cur_box.center[:2]	
+                agent_lcf_feat[i, 0:2] = cur_box.center[:2]
                 agent_lcf_feat[i, 2] = gt_boxes_yaw[i]
                 agent_lcf_feat[i, 3:5] = velocity[i]
                 agent_lcf_feat[i, 5:8] = anno['size'] # width,length,height
@@ -416,7 +416,7 @@ def _fill_trainval_infos(nusc,
                 else:
                     ego_his_trajs[i] = ego_his_trajs[i+1] - ego_his_trajs_diff[i+1]
                     ego_his_trajs_diff[i] = ego_his_trajs_diff[i+1]
-            
+
             # global to ego at lcf
             ego_his_trajs = ego_his_trajs - np.array(pose_record['translation'])
             rot_mat = Quaternion(pose_record['rotation']).inverse.rotation_matrix

@@ -17,18 +17,18 @@ from nuscenes.eval.detection.constants import DETECTION_NAMES, ATTRIBUTE_NAMES
 
 def color_map(data, cmap):
     """数值映射为颜色"""
-    
+
     dmin, dmax = np.nanmin(data), np.nanmax(data)
     cmo = plt.cm.get_cmap(cmap)
     cs, k = list(), 256/cmo.N
-    
+
     for i in range(cmo.N):
         c = cmo(i)
         for j in range(int(i*k), int((i+1)*k)):
             cs.append(c)
     cs = np.array(cs)
     data = np.uint8(255*(data-dmin)/(dmax-dmin))
-    
+
     return cs[data]
 
 class CustomNuscenesBox:
@@ -193,7 +193,7 @@ class CustomNuscenesBox:
             and center_bottom[0] < 35 and center_bottom[1] < 35:
             text = f'{box_idx}'
             axis.text(center_bottom[0], center_bottom[1], text, ha='left', fontsize=5)
-    
+
     def render_fut_trajs(self,
                axis: Axes,
                color: str = 'b',

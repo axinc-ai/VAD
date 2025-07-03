@@ -60,12 +60,12 @@ class MapNMSFreeCoder(BaseBBoxCoder):
         bbox_index = indexs // self.num_classes
         bbox_preds = bbox_preds[bbox_index]
         pts_preds = pts_preds[bbox_index]
-       
-        final_box_preds = denormalize_2d_bbox(bbox_preds, self.pc_range) 
+
+        final_box_preds = denormalize_2d_bbox(bbox_preds, self.pc_range)
         final_pts_preds = denormalize_2d_pts(pts_preds, self.pc_range) #num_q,num_p,2
-        # final_box_preds = bbox_preds 
-        final_scores = scores 
-        final_preds = labels 
+        # final_box_preds = bbox_preds
+        final_scores = scores
+        final_preds = labels
 
         # use score threshold
         if self.score_threshold is not None:

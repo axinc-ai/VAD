@@ -8,7 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import matplotlib.pyplot as plt
 from skimage.draw import polygon
-from mmdet.models import HEADS, build_loss 
+from mmdet.models import HEADS, build_loss
 from mmdet.models.dense_heads import DETRHead
 from mmcv.runner import force_fp32, load_checkpoint
 from mmcv.utils import TORCH_VERSION, digit_version
@@ -280,7 +280,7 @@ class v116ADTRHead(DETRHead):
             if 'bg_cls_weight' in loss_map_cls:
                 loss_map_cls.pop('bg_cls_weight')
             self.map_bg_cls_weight = map_bg_cls_weight
-        
+
         self.mot_bg_cls_weight = 0
 
         super(v116ADTRHead, self).__init__(*args, transformer=transformer, **kwargs)
@@ -288,7 +288,7 @@ class v116ADTRHead(DETRHead):
             self.code_weights, requires_grad=False), requires_grad=False)
         self.map_code_weights = nn.Parameter(torch.tensor(
             self.map_code_weights, requires_grad=False), requires_grad=False)
-        
+
         if kwargs['train_cfg'] is not None:
             assert 'map_assigner' in kwargs['train_cfg'], 'map assigner should be provided '\
                 'when train_cfg is set.'
@@ -310,7 +310,7 @@ class v116ADTRHead(DETRHead):
             # DETR sampling=False, so use PseudoSampler
             sampler_cfg = dict(type='PseudoSampler')
             self.map_sampler = build_sampler(sampler_cfg, context=self)
-        
+
         self.loss_mot_reg = build_loss(loss_mot_reg)
         self.loss_mot_cls = build_loss(loss_mot_cls)
         self.loss_map_bbox = build_loss(loss_map_bbox)
@@ -440,10 +440,10 @@ class v116ADTRHead(DETRHead):
                 self.map_query_embedding = None
                 self.map_instance_embedding = nn.Embedding(self.map_num_vec, self.embed_dims * 2)
                 self.map_pts_embedding = nn.Embedding(self.map_num_pts_per_vec, self.embed_dims * 2)
-        
+
         if self.mot_decoder is not None:
             self.mot_decoder = build_transformer_layer_sequence(self.mot_decoder)
-            self.mot_mode_query = nn.Embedding(self.mot_fut_mode, self.embed_dims)	
+            self.mot_mode_query = nn.Embedding(self.mot_fut_mode, self.embed_dims)
             self.mot_mode_query.weight.requires_grad = True
         else:
             raise NotImplementedError('Not implement yet')
@@ -493,7 +493,7 @@ class v116ADTRHead(DETRHead):
             pe_embed_mlps = nn.Linear(2, self.embed_dims)
         else:
             raise NotImplementedError('Not implement yet')
-        
+
         self.pe_embed_mlps = _get_clones(pe_embed_mlps, 4)
 
         self.ego_feat_projs = nn.ModuleList(
@@ -583,7 +583,7 @@ class v116ADTRHead(DETRHead):
         tl_trigger_cls_branch.append(nn.ReLU(inplace=True))
         tl_trigger_cls_branch.append(Linear(self.embed_dims, self.tl_trigger_num_cls))
         self.tl_trigger_cls_branch = nn.Sequential(*tl_trigger_cls_branch)
-        
+
         stopsign_trigger_cls_branch = []
         stopsign_trigger_cls_branch.append(Linear(self.embed_dims, self.embed_dims))
         stopsign_trigger_cls_branch.append(nn.LayerNorm(self.embed_dims))
@@ -705,7 +705,7 @@ class v116ADTRHead(DETRHead):
                 network, each is a 5D-tensor with shape
                 (B, N, C, H, W).
             prev_bev: previous bev featues
-            only_bev: only compute BEV features with encoder. 
+            only_bev: only compute BEV features with encoder.
         Returns:
             all_cls_scores (Tensor): Outputs from the classification head, \
                 shape [nb_dec, bs, num_query, cls_out_channels]. Note \
@@ -714,14 +714,14 @@ class v116ADTRHead(DETRHead):
                 head with normalized coordinate format (cx, cy, w, l, cz, h, theta, vx, vy). \
                 Shape [nb_dec, bs, num_query, 9].
         """
-        
+
         if not only_bev and not self.training:
             self.plan_fut_mode = self.plan_fut_mode_testing
 
         bs, num_cam, _, _, _ = mlvl_feats[0].shape
         dtype = mlvl_feats[0].dtype
         object_query_embeds = self.query_embedding.weight.to(dtype)
-        
+
         # import pdb;pdb.set_trace()
         if self.map_query_embed_type == 'all_pts':
             map_query_embeds = self.map_query_embedding.weight.to(dtype)
@@ -735,7 +735,7 @@ class v116ADTRHead(DETRHead):
         bev_mask = torch.zeros((bs, self.bev_h, self.bev_w),
                                device=bev_queries.device).to(dtype)
         bev_pos = self.positional_encoding(bev_mask).to(dtype)
-            
+
         if only_bev:  # only use encoder to obtain BEV features, TODO: refine the workaround
             return self.transformer.get_bev_features(
                 mlvl_feats,
@@ -810,7 +810,7 @@ class v116ADTRHead(DETRHead):
             outputs_coord = tmp
             outputs_classes.append(outputs_class)
             outputs_coords.append(outputs_coord)
-        
+
         for lvl in range(map_hs.shape[0]):
             if lvl == 0:
                 reference = map_init_reference
@@ -830,7 +830,7 @@ class v116ADTRHead(DETRHead):
             map_outputs_classes.append(map_outputs_class)
             map_outputs_coords.append(map_outputs_coord)
             map_outputs_pts_coords.append(map_outputs_pts_coord)
-            
+
         if self.mot_decoder is not None:
             batch_size, num_agent = outputs_coords_bev[-1].shape[:2]
             # mot_query
@@ -881,7 +881,7 @@ class v116ADTRHead(DETRHead):
 
                 # position encoding
                 if self.interaction_pe_type is not None:
-                    (attn_num_query, attn_batch) = ca_mot_query.shape[:2] 
+                    (attn_num_query, attn_batch) = ca_mot_query.shape[:2]
                     mot_pos = torch.zeros((attn_num_query, attn_batch, 2), device=mot_hs.device)
                     mot_pos = pos2posemb2d(mot_pos, num_pos_feats=self.embed_dims // 2) if self.interaction_pe_type == 'sine_mlp' else mot_pos
                     mot_pos = self.pe_embed_mlps[1](mot_pos)
@@ -890,7 +890,7 @@ class v116ADTRHead(DETRHead):
                     map_pos = self.pe_embed_mlps[1](map_pos)
                 else:
                     mot_pos, map_pos = None, None
-                
+
                 ca_mot_query = self.mot_map_decoder(
                     query=ca_mot_query,
                     key=map_query,
@@ -929,7 +929,7 @@ class v116ADTRHead(DETRHead):
         (batch, num_agent) = mot_hs.shape[:2]
 
 
-        # kinodynamic filtering      
+        # kinodynamic filtering
         # dynamic voca      ego_lcf_feat   ego_his_trajs   ego_fut_trajs
         # from carla_simulation.team_code_autopilot.autopilot import EgoModel
         # self.ego_model = EgoModel(dt=0.5)
@@ -946,8 +946,8 @@ class v116ADTRHead(DETRHead):
         used_index = torch.multinomial(kinodynamic_mask.float(), self.plan_fut_mode, replacement=False)
         # used_index = torch.LongTensor(random.sample(list(range(self.plan_anchors.shape[0]))[kinodynamic_mask], self.plan_fut_mode)).to(mot_hs.device)
         if self.training:
-            best_match_idx = torch.linalg.norm(ego_fut_trajs[0].cumsum(dim=-2) - self.plan_anchors, dim=-1).sum(dim=-1).argmin() 
-            # torch.linalg.norm(ego_traj_preds[:,:,:] - ego_fut_gt.cumsum(dim=-2)[:,:,:], dim=-1).sum(dim=-1) 
+            best_match_idx = torch.linalg.norm(ego_fut_trajs[0].cumsum(dim=-2) - self.plan_anchors, dim=-1).sum(dim=-1).argmin()
+            # torch.linalg.norm(ego_traj_preds[:,:,:] - ego_fut_gt.cumsum(dim=-2)[:,:,:], dim=-1).sum(dim=-1)
             if best_match_idx in used_index:
                 pass
             else:
@@ -1030,7 +1030,7 @@ class v116ADTRHead(DETRHead):
             query_pos=ego_agent_pos,
             key_pos=self.pv_pos_embedding.weight[:,None,:].repeat(1, batch, 1)[:attn_pv_feats.shape[0]]
         )
-        
+
         # ego <-> agent interaction
         ego_agent_query = self.ego_agent_decoder(
             query=ego_pv_query,
@@ -1110,9 +1110,9 @@ class v116ADTRHead(DETRHead):
                      1. * ego_wp_feat + 0. * ego_cmdid_feat + ego_status_feat + ego_cf_feat + 0. * ego_pv_feat
 
         outputs_ego_trajs = self.plan_reg_branch(ego_feats)
-        outputs_ego_trajs = outputs_ego_trajs.reshape(outputs_ego_trajs.shape[0], 
+        outputs_ego_trajs = outputs_ego_trajs.reshape(outputs_ego_trajs.shape[0],
                                                     self.plan_fut_mode, self.fut_ts, 2)
-        # if self.training:                        
+        # if self.training:
         #     outputs_ego_trajs = outputs_ego_trajs * 0. + self.plan_anchors[None].to(outputs_ego_trajs.device)
         # else:
         #     outputs_ego_trajs = outputs_ego_trajs * 0.  + self.centerline_trajs[None]
@@ -1128,7 +1128,7 @@ class v116ADTRHead(DETRHead):
         outputs_ego_cls_cl = self.plan_cls_cl_branch(ego_feats)
         outputs_ego_cls_expert = self.plan_cls_expert_branch(ego_feats)
 
-        
+
         outs = {
             'bev_embed': bev_embed,
             'all_cls_scores': outputs_classes,
@@ -1319,7 +1319,7 @@ class v116ADTRHead(DETRHead):
         # pts_sampling_result = self.sampler.sample(assign_result, pts_pred,
         #                                       gt_pts)
 
-        
+
         # import pdb;pdb.set_trace()
         pos_inds = sampling_result.pos_inds
         neg_inds = sampling_result.neg_inds
@@ -1477,7 +1477,7 @@ class v116ADTRHead(DETRHead):
                       agent_fut_preds,
                       agent_score_preds,
                       agent_fut_cls_preds,
-                      ego_cls_col_preds, 
+                      ego_cls_col_preds,
                       ego_cls_bd_preds,
                       ego_cls_cl_preds,
                       ego_cls_expert_preds,
@@ -1626,7 +1626,7 @@ class v116ADTRHead(DETRHead):
             loss_plan_bound = torch.nan_to_num(loss_plan_bound)
             loss_plan_agent_dis = torch.nan_to_num(loss_plan_agent_dis)
             loss_plan_map_theta = torch.nan_to_num(loss_plan_map_theta)
-        
+
         loss_plan_dict = dict()
         loss_plan_dict['loss_plan_cls_col'] = loss_plan_cls_col
         loss_plan_dict['loss_plan_cls_bd'] = loss_plan_cls_bd
@@ -1639,7 +1639,7 @@ class v116ADTRHead(DETRHead):
         loss_plan_dict['loss_plan_map_theta'] = loss_plan_map_theta
 
         return loss_plan_dict
-    
+
     def loss_single(self,
                     cls_scores,
                     bbox_preds,
@@ -1903,7 +1903,7 @@ class v116ADTRHead(DETRHead):
         # regression pts CD loss
         # pts_preds = pts_preds
         # import pdb;pdb.set_trace()
-        
+
         # num_samples, num_order, num_pts, num_coords
         normalized_pts_targets = normalize_2d_pts(pts_targets, self.pc_range)
 
@@ -1918,7 +1918,7 @@ class v116ADTRHead(DETRHead):
         # import pdb;pdb.set_trace()
         loss_pts = self.loss_map_pts(
             pts_preds[isnotnan,:,:],
-            normalized_pts_targets[isnotnan,:,:], 
+            normalized_pts_targets[isnotnan,:,:],
             pts_weights[isnotnan,:,:],
             avg_factor=num_total_pos)
 
@@ -1940,7 +1940,7 @@ class v116ADTRHead(DETRHead):
         loss_iou = self.loss_map_iou(
             bboxes[isnotnan, :4],
             bbox_targets[isnotnan, :4],
-            bbox_weights[isnotnan, :4], 
+            bbox_weights[isnotnan, :4],
             avg_factor=num_total_pos)
 
         if digit_version(TORCH_VERSION) >= digit_version('1.8'):
@@ -2041,7 +2041,7 @@ class v116ADTRHead(DETRHead):
             self.loss_single, all_cls_scores, all_bbox_preds, all_mot_preds,
             all_mot_cls_scores, all_gt_bboxes_list,
             all_gt_labels_list, all_gt_attr_labels_list, all_gt_bboxes_ignore_list)
-        
+
 
         num_dec_layers = len(map_all_cls_scores)
         device = map_gt_labels_list[0].device
@@ -2112,7 +2112,7 @@ class v116ADTRHead(DETRHead):
                            all_bbox_preds[-1][..., 0:2], agent_fut_preds,
                            all_cls_scores[-1].sigmoid(), agent_fut_cls_preds.sigmoid(),
                            ego_cls_col_preds, ego_cls_bd_preds, ego_cls_cl_preds, ego_cls_expert_preds,
-                           gt_bboxes_list, gt_attr_labels, 
+                           gt_bboxes_list, gt_attr_labels,
                            map_gt_pts_list, map_gt_labels_list]
 
         loss_planning_dict = self.loss_planning(*loss_plan_input)
@@ -2138,7 +2138,7 @@ class v116ADTRHead(DETRHead):
             tl_trigger_cls_scores, tl_trigger_labels,
             tl_trigger_cls_scores.new_ones(tl_trigger_labels.shape[0]),
             avg_factor=tl_trigger_cls_avg_factor)
-        
+
         # stop sign trigger classification
         stopsign_trigger_cls_scores = stopsign_trigger_cls_scores.reshape(-1, self.stopsign_trigger_num_cls)
         stopsign_trigger_labels = stop_sign_signal.reshape(-1)
@@ -2151,7 +2151,7 @@ class v116ADTRHead(DETRHead):
             stopsign_trigger_cls_scores, stopsign_trigger_labels,
             stopsign_trigger_cls_scores.new_ones(stopsign_trigger_labels.shape[0]),
             avg_factor=stopsign_trigger_cls_avg_factor)
-        
+
         # traffic light status classification
         tl_status_weights = 1 - tl_trigger_labels
         tl_status_cls_scores = tl_status_cls_scores.reshape(-1, self.tl_status_num_cls)
@@ -2296,7 +2296,7 @@ class v116ADTRHead(DETRHead):
             selected_map_pos: [B*A, P1(+1), 2]
             selected_padding_mask: [B*A, P1(+1)]
         """
-        
+
         if dis_thresh is None:
             raise NotImplementedError('Not implement yet')
 
@@ -2561,24 +2561,24 @@ class v116ADTRHead(DETRHead):
 
 
         ego_traj_expanded = ego_traj_preds.unsqueeze(2).unsqueeze(3)  # [num_plan_mode, T, 1, 1, 2]
-       
+
         maps_interpolated = F.interpolate(lane_centerline_preds.permute(0, 2, 1), \
                         scale_factor=50, mode='linear', align_corners=True).permute(0, 2, 1)
 
         maps_expanded = maps_interpolated.unsqueeze(0).unsqueeze(1)  # [1, 1, M, P, 2]
-        
+
         dist = torch.linalg.norm(ego_traj_expanded - maps_expanded, dim=-1)  # [num_plan_mode, T, M, P]
 
         dist = dist.min(dim=-1)[0] # map point dim
         dist = dist.sum(dim=1)   # dist = dist.max(dim=1)[0]  plan T dim   (max deviation)   or dist = dist.sum(dim=1)  (mean deviation)
         dist, nearest_map_ins_idx = dist.min(dim=-1)  # map ins dim
         maps_matched = maps_interpolated.index_select(dim=0, index=nearest_map_ins_idx)   # [num_plan_mode, P, 2]
-        
+
         dist_2 = torch.linalg.norm(ego_traj_preds.unsqueeze(2) - maps_matched.unsqueeze(1), dim=-1)
 
         mode_idxs = [[i] for i in range(dist.shape[0])]
         point_idx = dist_2.min(dim=-1)[1]
-        
+
         point_idx[point_idx==0] = 1
         map_segment_starts = maps_matched[mode_idxs, point_idx - 1]
         map_segment_ends = maps_matched[mode_idxs, point_idx]
@@ -2593,18 +2593,18 @@ class v116ADTRHead(DETRHead):
 
         cos_sim = F.cosine_similarity(ego_vector, centerline_vector, dim=-1)
 
-        
+
         cl_dir_labels = 1. - dist_2.min(dim=-1)[0].mean(dim=-1)
         # cl_dir_labels = cos_sim.mean(dim=-1) \
         #     - dist_2.min(dim=-1)[0].mean(dim=-1)
         cl_dir_labels = torch.clamp(cl_dir_labels, min=-1.)
-    
+
         # cl_dir_labels = (cl_dir_labels < 0.5).long()
 
-        # TODO   p2l  cost          
+        # TODO   p2l  cost
 
         return cl_dir_labels
-        
+
 
     def get_plan_expert_target(self,
             ego_traj_preds,
@@ -2620,7 +2620,7 @@ class v116ADTRHead(DETRHead):
 
         plan_expert_labels_weight = torch.zeros((self.plan_fut_mode), dtype=ego_traj_preds.dtype,
                                           device=ego_traj_preds.device)
-        
+
         if ego_fut_masks[0] == 1.:
 
             neg_idx = torch.ones((self.plan_fut_mode), dtype=torch.bool,
@@ -2682,9 +2682,9 @@ class v116ADTRHead(DETRHead):
 
             # add weights to balance trajs
             self.traj_selected_cnt[pos_idx] += 1.
-            scaling_rate = self.traj_selected_cnt.sum() / self.traj_selected_cnt[pos_idx] / self.plan_fut_mode 
+            scaling_rate = self.traj_selected_cnt.sum() / self.traj_selected_cnt[pos_idx] / self.plan_fut_mode
             scaling_rate = torch.clamp(scaling_rate, 0.5, 2.)
-            plan_expert_labels_weight[pos_idx] = 100.  # * scaling_rate   
+            plan_expert_labels_weight[pos_idx] = 100.  # * scaling_rate
 
             # global pos_idx_cnt
             # pos_idx_cnt[pos_idx] += 1
@@ -2706,7 +2706,7 @@ class v116ADTRHead(DETRHead):
             # plan_expert_labels_weight[plan_bd_labels == 1] = 1.
 
         return plan_expert_labels, plan_expert_labels_weight
-    
+
 class PlanningMetric():
     def __init__(self, fut_ts=6):
         super().__init__()
@@ -2738,7 +2738,7 @@ class PlanningMetric():
         nx = torch.LongTensor([(row[1] - row[0]) / row[2] for row in [xbound, ybound, zbound]])
 
         return dx, bx, nx
-    
+
     def calculate_birds_eye_view_parameters(self, x_bounds, y_bounds, z_bounds):
         """
         Parameters
@@ -2759,7 +2759,7 @@ class PlanningMetric():
                                     dtype=torch.long)
 
         return bev_resolution, bev_start_position, bev_dimension
-    
+
     def get_label(
             self,
             gt_agent_boxes,
@@ -2770,7 +2770,7 @@ class PlanningMetric():
         pedestrian = torch.from_numpy(pedestrian_np).long().unsqueeze(0)
 
         return segmentation, pedestrian
-    
+
     def get_birds_eye_view_label(
             self,
             gt_agent_boxes,
@@ -2801,7 +2801,7 @@ class PlanningMetric():
         gt_agent_boxes[:,6:7] = -1*(gt_agent_boxes[:, 6:7] + np.pi/2) # NOTE: convert yaw to lidar frame
         gt_agent_fut_trajs = gt_agent_fut_trajs + gt_agent_boxes[:, np.newaxis, 0:2]
         gt_agent_fut_yaw = gt_agent_fut_yaw + gt_agent_boxes[:, np.newaxis, 6:7]
-        
+
         for t in range(self.fut_ts):
             for i in range(agent_num):
                 if gt_agent_fut_mask[i][t] == 1:
@@ -2820,7 +2820,7 @@ class PlanningMetric():
                         cv2.fillPoly(pedestrian[t], [poly_region], 1.0)
 
         return segmentation, pedestrian
-    
+
     def _get_poly_region_in_image(self,param):
         lidar2cv_rot = np.array([[1,0], [0,-1]])
         x_a, y_a, yaw_a, agent_length, agent_width = param
@@ -2844,7 +2844,7 @@ class PlanningMetric():
             自车lidar系为轨迹参考系
                 ^ y
                 |
-                | 
+                |
                 0------->
                         x
         segmentation: torch.Tensor (n_future, 200, 200)
@@ -2865,7 +2865,7 @@ class PlanningMetric():
         # 轨迹坐标系转换为:
         #  ^ x
         #  |
-        #  | 
+        #  |
         #  0-------> y
         trajs_ = copy.deepcopy(trajs)
         trajs_[:,:,[0,1]] = trajs_[:,:,[1,0]] # can also change original tensor
@@ -2892,9 +2892,9 @@ class PlanningMetric():
 
 
     def evaluate_coll(
-            self, 
-            trajs, 
-            gt_trajs, 
+            self,
+            trajs,
+            gt_trajs,
             segmentation
         ):
         '''
@@ -2902,7 +2902,7 @@ class PlanningMetric():
             自车lidar系为轨迹参考系
             ^ y
             |
-            | 
+            |
             0------->
                     x
         gt_trajs: torch.Tensor (B, n_future, 2)

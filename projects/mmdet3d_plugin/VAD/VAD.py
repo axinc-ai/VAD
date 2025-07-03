@@ -66,7 +66,7 @@ class VAD(MVXTwoStageDetector):
         """Extract features of images."""
         B = img.size(0)
         if img is not None:
-            
+
             # input_shape = img.shape[-2:]
             # # update real input shape of each single img
             # for img_meta in img_metas:
@@ -102,7 +102,7 @@ class VAD(MVXTwoStageDetector):
         """Extract features from images and points."""
 
         img_feats = self.extract_img_feat(img, img_metas, len_queue=len_queue)
-        
+
         return img_feats
 
     def forward_pts_train(self,
@@ -110,7 +110,7 @@ class VAD(MVXTwoStageDetector):
                           gt_bboxes_3d,
                           gt_labels_3d,
                           map_gt_bboxes_3d,
-                          map_gt_labels_3d,                          
+                          map_gt_labels_3d,
                           img_metas,
                           gt_bboxes_ignore=None,
                           map_gt_bboxes_ignore=None,
@@ -163,7 +163,7 @@ class VAD(MVXTwoStageDetector):
             return self.forward_train(**kwargs)
         else:
             return self.forward_test(**kwargs)
-    
+
     def obtain_history_bev(self, imgs_queue, img_metas_list):
         """Obtain history BEV features iteratively. To save GPU memory, gradients are not calculated.
         """
@@ -230,7 +230,7 @@ class VAD(MVXTwoStageDetector):
         Returns:
             dict: Losses of different branches.
         """
-        
+
         len_queue = img.size(1)
         prev_img = img[:, :-1, ...]
         img = img[:, -1, ...]
@@ -372,7 +372,7 @@ class VAD(MVXTwoStageDetector):
         """Test function"""
         mapped_class_names = [
             'car', 'truck', 'construction_vehicle', 'bus',
-            'trailer', 'barrier', 'motorcycle', 'bicycle', 
+            'trailer', 'barrier', 'motorcycle', 'bicycle',
             'pedestrian', 'traffic_cone'
         ]
 
@@ -485,7 +485,7 @@ class VAD(MVXTwoStageDetector):
 
         Returns:
             matched_bbox_result (np.array): assigned pred index for each gt box [num_gt_bbox].
-        """     
+        """
         dynamic_list = [0,1,3,4,6,7,8]
         matched_bbox_result = torch.ones(
             (len(gt_bbox)), dtype=torch.long) * -1  # -1: not assigned
@@ -534,7 +534,7 @@ class VAD(MVXTwoStageDetector):
         motion_cls_names = ['car', 'pedestrian']
         motion_metric_names = ['gt', 'cnt_ade', 'cnt_fde', 'hit',
                                'fp', 'ADE', 'FDE', 'MR']
-        
+
         metric_dict = {}
         for met in motion_metric_names:
             for cls in motion_cls_names:
@@ -637,8 +637,8 @@ class VAD(MVXTwoStageDetector):
                 metric_dict['plan_L2_{}s'.format(i+1)] = 0.0
                 metric_dict['plan_obj_col_{}s'.format(i+1)] = 0.0
                 metric_dict['plan_obj_box_col_{}s'.format(i+1)] = 0.0
-            
+
         return metric_dict
 
-    def set_epoch(self, epoch): 
+    def set_epoch(self, epoch):
         self.pts_bbox_head.epoch = epoch

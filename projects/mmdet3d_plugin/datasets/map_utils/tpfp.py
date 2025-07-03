@@ -42,10 +42,10 @@ def tpfp_bbox(det_bboxes,
     if num_gts == 0:
         fp[...] = 1
         return tp, fp
-    
+
     if num_dets == 0:
         return tp, fp
-    
+
     # # distance matrix: n x m
     bbox_p = det_bboxes[:, :-1].reshape(num_dets,-1,2)
     bbox_g = gt_bboxes.reshape(num_gts,-1,2)
@@ -112,10 +112,10 @@ def tpfp_rbbox(det_bboxes,
     if num_gts == 0:
         fp[...] = 1
         return tp, fp
-    
+
     if num_dets == 0:
         return tp, fp
-    
+
     # # distance matrix: n x m
     bbox_p = det_bboxes[:, :-1].reshape(num_dets,-1,2)
     bbox_g = gt_bboxes.reshape(num_gts,-1,2)
@@ -181,13 +181,13 @@ def tpfp_det(det_bboxes,
     if num_gts == 0:
         fp[...] = 1
         return tp, fp
-    
+
     if num_dets == 0:
         return tp, fp
-    
+
     # # distance matrix: n x m
     matrix = vec_iou(
-            det_bboxes[:, :-1].reshape(num_dets,-1,2), 
+            det_bboxes[:, :-1].reshape(num_dets,-1,2),
             gt_bboxes.reshape(num_gts,-1,2))
     # for each det, the max iou with all gts
     matrix_max = matrix.max(axis=1)
@@ -238,7 +238,7 @@ def tpfp_gen(gen_lines,
 
     num_gens = gen_lines.shape[0]
     num_gts = gt_lines.shape[0]
-    
+
     # tp and fp
     tp = np.zeros((num_gens), dtype=np.float32)
     fp = np.zeros((num_gens), dtype=np.float32)
@@ -248,20 +248,20 @@ def tpfp_gen(gen_lines,
     if num_gts == 0:
         fp[...] = 1
         return tp, fp
-    
+
     if num_gens == 0:
         return tp, fp
-    
+
     gen_scores = gen_lines[:,-1] # n
     # distance matrix: n x m
 
     # matrix = custom_polyline_score(
-    #         gen_lines[:,:-1].reshape(num_gens,-1,2), 
+    #         gen_lines[:,:-1].reshape(num_gens,-1,2),
     #         gt_lines.reshape(num_gts,-1,2),linewidth=2.,metric=metric)
 
     # TODO MAY bug here
     matrix = polyline_score(
-            gen_lines[:,:-1].reshape(num_gens,-1,2), 
+            gen_lines[:,:-1].reshape(num_gens,-1,2),
             gt_lines.reshape(num_gts,-1,2),linewidth=2.,metric=metric)
     # for each det, the max iou with all gts
     matrix_max = matrix.max(axis=1)
@@ -318,7 +318,7 @@ def custom_tpfp_gen(gen_lines,
     # import pdb;pdb.set_trace()
     num_gens = gen_lines.shape[0]
     num_gts = gt_lines.shape[0]
-    
+
     # tp and fp
     tp = np.zeros((num_gens), dtype=np.float32)
     fp = np.zeros((num_gens), dtype=np.float32)
@@ -328,15 +328,15 @@ def custom_tpfp_gen(gen_lines,
     if num_gts == 0:
         fp[...] = 1
         return tp, fp
-    
+
     if num_gens == 0:
         return tp, fp
-    
+
     gen_scores = gen_lines[:,-1] # n
     # distance matrix: n x m
 
     matrix = custom_polyline_score(
-            gen_lines[:,:-1].reshape(num_gens,-1,2), 
+            gen_lines[:,:-1].reshape(num_gens,-1,2),
             gt_lines.reshape(num_gts,-1,2),linewidth=2.,metric=metric)
     # for each det, the max iou with all gts
     matrix_max = matrix.max(axis=1)

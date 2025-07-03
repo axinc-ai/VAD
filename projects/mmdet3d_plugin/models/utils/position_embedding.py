@@ -53,7 +53,7 @@ class SineEmbedding(nn.Module):
 
     def forward(self, x):
         """
-        Embeds x to (sin(2^k x), cos(2^k x), ...) 
+        Embeds x to (sin(2^k x), cos(2^k x), ...)
         Inputs:
             x: (B, self.in_channels)
         Outputs:

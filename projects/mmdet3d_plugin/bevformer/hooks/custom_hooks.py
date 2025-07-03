@@ -4,7 +4,7 @@ from projects.mmdet3d_plugin.models.utils import run_time
 
 @HOOKS.register_module()
 class TransferWeight(Hook):
-    
+
     def __init__(self, every_n_inters=1):
         self.every_n_inters=every_n_inters
 

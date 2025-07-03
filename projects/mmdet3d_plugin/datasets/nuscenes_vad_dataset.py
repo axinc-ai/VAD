@@ -33,8 +33,8 @@ class LiDARInstanceLines(object):
     """Line instance in LIDAR coordinates
 
     """
-    def __init__(self, 
-                 instance_line_list, 
+    def __init__(self,
+                 instance_line_list,
                  sample_dist=1,
                  num_samples=250,
                  padding=False,
@@ -283,18 +283,18 @@ class LiDARInstanceLines(object):
                 flip_sampled_points = np.flip(sampled_points, axis=0)
                 shift_pts_list.append(sampled_points)
                 shift_pts_list.append(flip_sampled_points)
-            
+
             multi_shifts_pts = np.stack(shift_pts_list,axis=0)
             shifts_num,_,_ = multi_shifts_pts.shape
 
             if shifts_num > final_shift_num:
                 index = np.random.choice(multi_shifts_pts.shape[0], final_shift_num, replace=False)
                 multi_shifts_pts = multi_shifts_pts[index]
-            
+
             multi_shifts_pts_tensor = to_tensor(multi_shifts_pts)
             multi_shifts_pts_tensor = multi_shifts_pts_tensor.to(
                             dtype=torch.float32)
-            
+
             multi_shifts_pts_tensor[:,:,0] = torch.clamp(multi_shifts_pts_tensor[:,:,0], min=-self.max_x,max=self.max_x)
             multi_shifts_pts_tensor[:,:,1] = torch.clamp(multi_shifts_pts_tensor[:,:,1], min=-self.max_y,max=self.max_y)
             # if not is_poly:
@@ -350,7 +350,7 @@ class LiDARInstanceLines(object):
                 flip_sampled_points = np.flip(sampled_points, axis=0)
                 shift_pts_list.append(sampled_points)
                 shift_pts_list.append(flip_sampled_points)
-            
+
             multi_shifts_pts = np.stack(shift_pts_list,axis=0)
             shifts_num,_,_ = multi_shifts_pts.shape
             # import pdb;pdb.set_trace()
@@ -359,11 +359,11 @@ class LiDARInstanceLines(object):
                 flip0_shifts_pts = multi_shifts_pts[index]
                 flip1_shifts_pts = multi_shifts_pts[index+shift_num]
                 multi_shifts_pts = np.concatenate((flip0_shifts_pts,flip1_shifts_pts),axis=0)
-            
+
             multi_shifts_pts_tensor = to_tensor(multi_shifts_pts)
             multi_shifts_pts_tensor = multi_shifts_pts_tensor.to(
                             dtype=torch.float32)
-            
+
             multi_shifts_pts_tensor[:,:,0] = torch.clamp(multi_shifts_pts_tensor[:,:,0], min=-self.max_x,max=self.max_x)
             multi_shifts_pts_tensor[:,:,1] = torch.clamp(multi_shifts_pts_tensor[:,:,1], min=-self.max_y,max=self.max_y)
             # if not is_poly:
@@ -521,7 +521,7 @@ class VectorizedLocalMap(object):
         '''
         use lidar2global to get gt map layers
         '''
-        
+
         map_pose = lidar2global_translation[:2]
         rotation = Quaternion(lidar2global_rotation)
 
@@ -532,7 +532,7 @@ class VectorizedLocalMap(object):
         for vec_class in self.vec_classes:
             if vec_class == 'divider':
                 line_geom = self.get_map_geom(patch_box, patch_angle, self.line_classes, location)
-                line_instances_dict = self.line_geoms_to_instances(line_geom)     
+                line_instances_dict = self.line_geoms_to_instances(line_geom)
                 for line_type, instances in line_instances_dict.items():
                     for instance in instances:
                         vectors.append((instance, self.CLASS2LABEL.get(line_type, -1)))
@@ -563,7 +563,7 @@ class VectorizedLocalMap(object):
             if type != -1:
                 gt_instance.append(instance)
                 gt_labels.append(type)
-        
+
         gt_instance = LiDARInstanceLines(gt_instance,self.sample_dist,
                         self.num_samples, self.padding, self.fixed_num,self.padding_value, patch_size=self.patch_size)
 
@@ -596,7 +596,7 @@ class VectorizedLocalMap(object):
 
     def _one_type_line_geom_to_vectors(self, line_geom):
         line_vectors = []
-        
+
         for line in line_geom:
             if not line.is_empty:
                 if line.geom_type == 'MultiLineString':
@@ -610,7 +610,7 @@ class VectorizedLocalMap(object):
 
     def _one_type_line_geom_to_instances(self, line_geom):
         line_instances = []
-        
+
         for line in line_geom:
             if not line.is_empty:
                 if line.geom_type == 'MultiLineString':
@@ -1028,8 +1028,8 @@ class VADCustomNuScenesDataset(NuScenesDataset):
         self.padding_value = padding_value
         self.fixed_num = map_fixed_ptsnum_per_line
         self.eval_use_same_gt_sample_num_flag = map_eval_use_same_gt_sample_num_flag
-        self.vector_map = VectorizedLocalMap(kwargs['data_root'], 
-                            patch_size=self.patch_size, map_classes=self.MAPCLASSES, 
+        self.vector_map = VectorizedLocalMap(kwargs['data_root'],
+                            patch_size=self.patch_size, map_classes=self.MAPCLASSES,
                             fixed_ptsnum_per_line=map_fixed_ptsnum_per_line,
                             padding_value=self.padding_value)
         self.is_vis_on_test = True
@@ -1090,7 +1090,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
         anns_results = self.vector_map.gen_vectorized_samples(
             location, lidar2global_translation, lidar2global_rotation
         )
-        
+
         '''
         anns_results, type: dict
             'gt_vecs_pts_loc': list[num_vecs], vec with num_points*2 coordinates
@@ -1105,7 +1105,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
             try:
                 gt_vecs_pts_loc = gt_vecs_pts_loc.flatten(1).to(dtype=torch.float32)
             except:
-                # empty tensor, will be passed in train, 
+                # empty tensor, will be passed in train,
                 # but we preserve it for test
                 gt_vecs_pts_loc = gt_vecs_pts_loc
 
@@ -1242,7 +1242,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
             nan_mask = np.isnan(gt_velocity[:, 0])
             gt_velocity[nan_mask] = [0.0, 0.0]
             gt_bboxes_3d = np.concatenate([gt_bboxes_3d, gt_velocity], axis=-1)
-        
+
         if self.with_attr:
             gt_fut_trajs = info['gt_agent_fut_trajs'][mask]
             gt_fut_masks = info['gt_agent_fut_masks'][mask]
@@ -1259,7 +1259,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
             gt_bboxes_3d,
             box_dim=gt_bboxes_3d.shape[-1],
             origin=(0.5, 0.5, 0.5)).convert_to(self.box_mode_3d)
-        
+
         anns_results = dict(
             gt_bboxes_3d=gt_bboxes_3d,
             gt_labels_3d=gt_labels_3d,
@@ -1341,7 +1341,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
 
                 cam_intrinsics.append(viewpad)
                 lidar2cam_rts.append(lidar2cam_rt.T)
-            
+
                 # camera to ego transform
                 camera2ego = np.eye(4).astype(np.float32)
                 camera2ego[:3, :3] = Quaternion(
@@ -1676,7 +1676,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
         from projects.mmdet3d_plugin.datasets.map_utils.mean_ap import eval_map
         from projects.mmdet3d_plugin.datasets.map_utils.mean_ap import format_res_gt_by_classes
         result_path = osp.abspath(result_path)
-        
+
         print('Formating results & gts by classes')
         pred_results = mmcv.load(result_path)
         map_results = pred_results['map_results']
@@ -1730,7 +1730,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
                             detail['NuscMap_{}/{}_AP_thr_{}'.format(metric,name,thr)]=cls_aps[j][i]
 
         return detail
-    
+
     def evaluate(self,
                  results,
                  metric='bbox',
@@ -1773,20 +1773,20 @@ class VADCustomNuScenesDataset(NuScenesDataset):
         for met in result_metric_names:
             for cls in motion_cls_names:
                 result_dict[met+'_'+cls] = 0.0
-        
+
         alpha = 0.5
 
         for i in range(len(results)):
             for key in all_metric_dict.keys():
                 all_metric_dict[key] += results[i]['metric_results'][key]
-        
+
         for cls in motion_cls_names:
             result_dict['EPA_'+cls] = (all_metric_dict['hit_'+cls] - \
                  alpha * all_metric_dict['fp_'+cls]) / all_metric_dict['gt_'+cls]
             result_dict['ADE_'+cls] = all_metric_dict['ADE_'+cls] / all_metric_dict['cnt_ade_'+cls]
             result_dict['FDE_'+cls] = all_metric_dict['FDE_'+cls] / all_metric_dict['cnt_fde_'+cls]
             result_dict['MR_'+cls] = all_metric_dict['MR_'+cls] / all_metric_dict['cnt_fde_'+cls]
-        
+
         print('\n')
         print('-------------- Motion Prediction --------------')
         for k, v in result_dict.items():
@@ -1807,7 +1807,7 @@ class VADCustomNuScenesDataset(NuScenesDataset):
             else:
                 for k in res['metric_results'].keys():
                     metric_dict[k] += res['metric_results'][k]
-        
+
         for k in metric_dict:
             metric_dict[k] = metric_dict[k] / num_valid
             print("{}:{}".format(k, metric_dict[k]))

@@ -4,7 +4,7 @@
 
 # Train and Test
 
-## Train VAD with 8 GPUs 
+## Train VAD with 8 GPUs
 ```shell
 cd /path/to/VAD
 conda activate vad
@@ -25,7 +25,7 @@ CUDA_VISIBLE_DEVICES=0 python tools/test.py projects/configs/VAD/VAD_base.py /pa
 ## Reproduce results with pre-trained weights
 If you want to reproduce results with pre-trained weights, please change the `img_norm_cfg` setting in your config file to following:
 
- ``` 
+ ```
 img_norm_cfg = dict(
     mean=[103.530, 116.280, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
 ```

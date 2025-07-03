@@ -58,7 +58,7 @@ class MapHungarianAssigner3D(BaseAssigner):
                bbox_pred,
                cls_pred,
                pts_pred,
-               gt_bboxes, 
+               gt_bboxes,
                gt_labels,
                gt_pts,
                gt_bboxes_ignore=None,
@@ -116,7 +116,7 @@ class MapHungarianAssigner3D(BaseAssigner):
         # classification and bboxcost.
         cls_cost = self.cls_cost(cls_pred, gt_labels)
         # regression L1 cost
-        
+
         normalized_gt_bboxes = normalize_2d_bbox(gt_bboxes, self.pc_range)
         # normalized_gt_bboxes = gt_bboxes
         # import pdb;pdb.set_trace()
@@ -135,12 +135,12 @@ class MapHungarianAssigner3D(BaseAssigner):
         pts_cost_ordered = self.pts_cost(pts_pred_interpolated, normalized_gt_pts)
         pts_cost_ordered = pts_cost_ordered.view(num_bboxes, num_gts, num_orders)
         pts_cost, order_index = torch.min(pts_cost_ordered, 2)
-        
+
         bboxes = denormalize_2d_bbox(bbox_pred, self.pc_range)
         iou_cost = self.iou_cost(bboxes, gt_bboxes)
         # weighted sum of above three costs
         cost = cls_cost + reg_cost + iou_cost + pts_cost
-        
+
         # 3. do Hungarian matching on CPU using linear_sum_assignment
         cost = cost.detach().cpu()
         if linear_sum_assignment is None:

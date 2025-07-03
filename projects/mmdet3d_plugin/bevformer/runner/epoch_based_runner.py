@@ -17,19 +17,19 @@ from mmcv.parallel.data_container import DataContainer
 
 @RUNNERS.register_module()
 class EpochBasedRunner_video(EpochBasedRunner):
-    
-    ''' 
+
+    '''
     # basic logic
-    
+
     input_sequence = [a, b, c] # given a sequence of samples
-    
+
     prev_bev = None
     for each in input_sequcene[:-1]
         prev_bev = eval_model(each, prev_bev)) # inference only.
-    
+
     model(input_sequcene[-1], prev_bev) # train the last sample.
     '''
-    
+
     def __init__(self,
                  model,
                  eval_model=None,
@@ -53,7 +53,7 @@ class EpochBasedRunner_video(EpochBasedRunner):
         self.keys = keys
         self.eval_model = eval_model
         self.eval_model.eval()
-    
+
     def run_iter(self, data_batch, train_mode, **kwargs):
         if self.batch_processor is not None:
             assert False
@@ -81,7 +81,7 @@ class EpochBasedRunner_video(EpochBasedRunner):
                 for i in range(num_samples-1):
                     if i>0: data_list[i]['prev_bev'] = DataContainer(data=[prev_bev], cpu_only=False)
                     prev_bev = self.eval_model.val_step(data_list[i], self.optimizer, **kwargs)
-            
+
             data_list[-1]['prev_bev'] = DataContainer(data=[prev_bev], cpu_only=False)
             outputs = self.model.train_step(data_list[-1], self.optimizer, **kwargs)
         else:

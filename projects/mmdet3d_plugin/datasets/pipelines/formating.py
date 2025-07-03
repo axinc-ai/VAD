@@ -51,5 +51,5 @@ class CustomDefaultFormatBundle3D(DefaultFormatBundle3D):
                 results['ego_lcf_feat'] = DC(to_tensor(results['ego_lcf_feat'][None, None, ...]), stack=True)
             if 'gt_attr_labels' in results:
                 results['gt_attr_labels'] = DC(to_tensor(results['gt_attr_labels']), cpu_only=False)
-                
+
         return results

@@ -454,7 +454,7 @@ class OrderedPtsSmoothL1Cost(object):
                 (x, y), which are all in range [0, 1]. Shape
                 [num_query, num_pts, 2].
             gt_bboxes (Tensor): Ground truth boxes with normalized
-                coordinates (x,y). 
+                coordinates (x,y).
                 Shape [num_gt, num_ordered, num_pts, 2].
         Returns:
             torch.Tensor: bbox_cost value with weight
@@ -485,7 +485,7 @@ class PtsL1Cost(object):
                 (x, y), which are all in range [0, 1]. Shape
                 [num_query, num_pts, 2].
             gt_bboxes (Tensor): Ground truth boxes with normalized
-                coordinates (x,y). 
+                coordinates (x,y).
                 Shape [num_gt, num_ordered, num_pts, 2].
         Returns:
             torch.Tensor: bbox_cost value with weight
@@ -514,7 +514,7 @@ class OrderedPtsL1Cost(object):
                 (x, y), which are all in range [0, 1]. Shape
                 [num_query, num_pts, 2].
             gt_bboxes (Tensor): Ground truth boxes with normalized
-                coordinates (x,y). 
+                coordinates (x,y).
                 Shape [num_gt, num_ordered, num_pts, 2].
         Returns:
             torch.Tensor: bbox_cost value with weight

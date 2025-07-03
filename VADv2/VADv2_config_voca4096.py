@@ -57,7 +57,7 @@ file_client_args = dict(backend='disk')
 # open-loop test param
 # route_id = 6
 test_data_root = 'data/carladata/v2/pkl/'
-test_pkl = 'town05_long_new.pkl' #'carladata_v18_selected.pkl'  #'town05_long_new.pkl' # 'carladata_town05long.pkl' #'carladata_town05long.pkl' #'carla_minival_v3.pkl' 
+test_pkl = 'town05_long_new.pkl' #'carladata_v18_selected.pkl'  #'town05_long_new.pkl' # 'carladata_town05long.pkl' #'carladata_town05long.pkl' #'carla_minival_v3.pkl'
 gt_anno_file = 'test_record/carla/v2'
 map_ann_file = gt_anno_file + '/test_map.json'
 agent_ann_file = gt_anno_file + '/test_agent.json'
@@ -377,7 +377,7 @@ model = dict(
             use_sigmoid=True,
             loss_weight=1.0,
             class_weight=None)),
-    
+
     # model training and testing settings
     train_cfg=dict(pts=dict(
         grid_size=[512, 512, 1],

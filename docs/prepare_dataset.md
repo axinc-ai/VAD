@@ -7,7 +7,7 @@ Download nuScenes V1.0 full dataset data and CAN bus expansion data [HERE](https
 **Download CAN bus expansion**
 ```
 # download 'can_bus.zip'
-unzip can_bus.zip 
+unzip can_bus.zip
 # move can_bus to data dir
 ```
 

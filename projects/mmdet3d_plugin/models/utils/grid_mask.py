@@ -45,7 +45,7 @@ class Grid(object):
                 s = d*i + st_w
                 t = min(s+self.l, ww)
                 mask[:,s:t] *= 0
-       
+
         r = np.random.randint(self.rotate)
         mask = Image.fromarray(np.uint8(mask))
         mask = mask.rotate(r)
@@ -62,7 +62,7 @@ class Grid(object):
             offset = (1 - mask) * offset
             img = img * mask + offset
         else:
-            img = img * mask 
+            img = img * mask
 
         return img, label
 
@@ -104,7 +104,7 @@ class GridMask(nn.Module):
                 s = d*i + st_w
                 t = min(s+self.l, ww)
                 mask[:,s:t] *= 0
-       
+
         r = np.random.randint(self.rotate)
         mask = Image.fromarray(np.uint8(mask))
         mask = mask.rotate(r)
@@ -119,6 +119,6 @@ class GridMask(nn.Module):
             offset = torch.from_numpy(2 * (np.random.rand(h,w) - 0.5)).to(x.dtype).cuda()
             x = x * mask + offset * (1 - mask)
         else:
-            x = x * mask 
-        
+            x = x * mask
+
         return x.view(n,c,h,w)
