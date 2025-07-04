@@ -271,7 +271,7 @@ def lidiar_render(sample_token, data, out_path=None, out_name=None, traj_use_per
     for ann in anns:
         content = nusc.get('sample_annotation', ann)
         gt_fut_trajs, gt_fut_masks = get_gt_fut_trajs(
-            nusc=nusc, anno=content, cs_record=cs_record, 
+            nusc=nusc, anno=content, cs_record=cs_record,
             pose_record=pose_record, fut_ts=6
         )
         try:
@@ -389,7 +389,7 @@ def get_gt_fut_trajs(nusc: NuScenes,
     #  Move box to sensor coord system.
     box.translate(-np.array(cs_record['translation']))
     box.rotate(Quaternion(cs_record['rotation']).inverse)
-    
+
     # get future trajectory coords for each box
     gt_fut_trajs = np.zeros((fut_ts, 2))  # [fut_ts*2]
     gt_fut_masks = np.zeros((fut_ts))  # [fut_ts]
@@ -416,7 +416,7 @@ def get_gt_fut_trajs(nusc: NuScenes,
         else:
             # gt_fut_trajs[i:] = gt_fut_trajs[i-1]
             gt_fut_trajs[i:] = 0
-            break         
+            break
 
     return gt_fut_trajs.reshape(-1).tolist(), gt_fut_masks.reshape(-1).tolist()
 
@@ -455,7 +455,7 @@ def get_gt_vec_maps(
     patch_size = (patch_h, patch_w)
 
     vector_map = VectorizedLocalMap(data_root, patch_size=patch_size,
-                                    map_classes=map_classes, 
+                                    map_classes=map_classes,
                                     fixed_ptsnum_per_line=map_fixed_ptsnum_per_line,
                                     padding_value=padding_value)
 
@@ -463,7 +463,7 @@ def get_gt_vec_maps(
     anns_results = vector_map.gen_vectorized_samples(
         map_location, lidar2global_translation, lidar2global_rotation
     )
-    
+
     '''
     anns_results, type: dict
         'gt_vecs_pts_loc': list[num_vecs], vec with num_points*2 coordinates
@@ -479,7 +479,7 @@ def get_gt_vec_maps(
             gt_vecs_pts_loc = gt_vecs_pts_loc.flatten(1).to(dtype=torch.float32)
         except:
             gt_vecs_pts_loc = gt_vecs_pts_loc
-    
+
     return gt_vecs_pts_loc, gt_vecs_label
 
 
@@ -546,7 +546,7 @@ def visualize_sample(nusc: NuScenes,
         pts_y = np.array([pt[1] for pt in pred_pts_3d])
 
         axes.plot(pts_x, pts_y, color=colors_plt[pred_label_3d],linewidth=1,alpha=0.8,zorder=-1)
-        axes.scatter(pts_x, pts_y, color=colors_plt[pred_label_3d],s=1,alpha=0.8,zorder=-1)  
+        axes.scatter(pts_x, pts_y, color=colors_plt[pred_label_3d],s=1,alpha=0.8,zorder=-1)
 
     # ignore_list = ['barrier', 'motorcycle', 'bicycle', 'traffic_cone']
     ignore_list = ['barrier', 'bicycle', 'traffic_cone']
@@ -736,8 +736,9 @@ if __name__ == '__main__':
     bevformer_results = mmcv.load(inference_result_path)
     sample_token_list = list(bevformer_results['results'].keys())
 
-    nusc = NuScenes(version='v1.0-trainval', dataroot='./data/nuscenes', verbose=True)
-    
+    # nusc = NuScenes(version='v1.0-trainval', dataroot='./data/nuscenes', verbose=True)
+    nusc = NuScenes(version='v1.0-mini', dataroot='./data/nuscenes-mini', verbose=True)
+
     imgs = []
     fourcc = cv2.VideoWriter_fourcc('m', 'p', '4', 'v')
     video_path = osp.join(out_path, 'vis.mp4')
@@ -780,7 +781,7 @@ if __name__ == '__main__':
                 _, boxes_gt, _ = nusc.get_sample_data(sample_data_token, box_vis_level=BoxVisibility.ANY)
 
                 data = Image.open(data_path)
- 
+
                 # Show image.
                 _, ax = plt.subplots(1, 1, figsize=(6, 12))
                 ax.imshow(data)
@@ -888,15 +889,15 @@ if __name__ == '__main__':
         # Line thickness of 2 px
         thickness = 3
         # org
-        org = (20, 40)      
+        org = (20, 40)
         # Blue color in BGR
         color = (0, 0, 0)
         # Using cv2.putText() method
-        pred_img = cv2.putText(pred_img, 'BEV', org, font, 
+        pred_img = cv2.putText(pred_img, 'BEV', org, font,
                         fontScale, color, thickness, cv2.LINE_AA)
-        pred_img = cv2.putText(pred_img, plan_cmd_str, (20, 770), font, 
+        pred_img = cv2.putText(pred_img, plan_cmd_str, (20, 770), font,
                         fontScale, color, thickness, cv2.LINE_AA)
-        
+
         sample_img = pred_img
         cam_img_top = cv2.hconcat([cam_imgs[0], cam_imgs[1], cam_imgs[2]])
         cam_img_down = cv2.hconcat([cam_imgs[3], cam_imgs[4], cam_imgs[5]])
@@ -906,6 +907,6 @@ if __name__ == '__main__':
         vis_img = cv2.hconcat([cam_img, sample_img])
 
         video.write(vis_img)
-    
+
     video.release()
     cv2.destroyAllWindows()

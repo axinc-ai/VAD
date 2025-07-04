@@ -272,19 +272,19 @@ def main():
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
 
             print(dataset.evaluate(outputs['bbox_results'], **eval_kwargs))
-    
+
         # # # NOTE: record to json
         # json_path = args.json_dir
         # if not os.path.exists(json_path):
         #     os.makedirs(json_path)
-        
+
         # metric_all = []
         # for res in outputs['bbox_results']:
         #     for k in res['metric_results'].keys():
         #         if type(res['metric_results'][k]) is np.ndarray:
         #             res['metric_results'][k] = res['metric_results'][k].tolist()
         #     metric_all.append(res['metric_results'])
-        
+
         # print('start saving to json done')
         # with open(json_path+'/metric_record.json', "w", encoding="utf-8") as f2:
         #     json.dump(metric_all, f2, indent=4)

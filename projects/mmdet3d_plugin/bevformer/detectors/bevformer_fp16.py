@@ -22,10 +22,10 @@ from projects.mmdet3d_plugin.models.utils.bricks import run_time
 @DETECTORS.register_module()
 class BEVFormer_fp16(BEVFormer):
     """
-    The default version BEVFormer currently can not support FP16. 
+    The default version BEVFormer currently can not support FP16.
     We provide this version to resolve this issue.
     """
-    
+
     @auto_fp16(apply_to=('img', 'prev_bev', 'points'))
     def forward_train(self,
                       points=None,
@@ -64,7 +64,7 @@ class BEVFormer_fp16(BEVFormer):
         Returns:
             dict: Losses of different branches.
         """
-        
+
         img_feats = self.extract_feat(img=img, img_metas=img_metas)
 
         losses = dict()

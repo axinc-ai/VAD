@@ -4,10 +4,11 @@
 
 # Train and Test
 
-## Train VAD with 8 GPUs 
+## Train VAD with 8 GPUs
 ```shell
-cd /path/to/VAD
+cd ${PROJECT_DIR}
 conda activate vad
+# For VAD_Base
 python -m torch.distributed.run --nproc_per_node=8 --master_port=2333 tools/train.py projects/configs/VAD/VAD_base.py --launcher pytorch --deterministic --work-dir path/to/save/outputs
 ```
 
@@ -15,17 +16,28 @@ python -m torch.distributed.run --nproc_per_node=8 --master_port=2333 tools/trai
 
 ## Eval VAD with 1 GPU
 ```shell
-cd /path/to/VAD
+cd ${PROJECT_DIR}
 conda activate vad
-CUDA_VISIBLE_DEVICES=0 python tools/test.py projects/configs/VAD/VAD_base.py /path/to/ckpt.pth --launcher none --eval bbox --tmpdir tmp
+# For VAD_Base
+CUDA_VISIBLE_DEVICES=0 python tools/test.py projects/configs/VAD/VAD_base.py ckpts/VAD_base.pth --launcher none --eval bbox --tmpdir tmp
 ```
 
 **NOTE**: Using distributed mode (multi GPUs) for evaluation will lead to inaccurate results, so make sure to use non-distributed mode (1 GPU) for evaluation.
 
+## Test VAD with 1 GPU on nuScenes mini
+```shell
+cd ${PROJECT_DIR}
+conda activate vad
+# For VAD_Base
+CUDA_VISIBLE_DEVICES=0 python tools/test.py projects/configs/VAD/VAD_base_nuscenes_mini.py ckpts/VAD_base.pth --launcher none --eval bbox --tmpdir tmp
+# For VAD_Tiny
+CUDA_VISIBLE_DEVICES=0 python tools/test.py projects/configs/VAD/VAD_tiny_nuscenes_mini.py ckpts/VAD_tiny.pth --launcher none --eval bbox --tmpdir tmp
+```
+
 ## Reproduce results with pre-trained weights
 If you want to reproduce results with pre-trained weights, please change the `img_norm_cfg` setting in your config file to following:
 
- ``` 
+ ```
 img_norm_cfg = dict(
     mean=[103.530, 116.280, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
 ```

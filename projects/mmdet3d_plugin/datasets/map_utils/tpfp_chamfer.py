@@ -163,7 +163,7 @@ def polyline_score(pred_lines, gt_lines, linewidth=1., metric='POR'):
                 if metric=='POR':
                     dist_mat = distance.cdist(
                         pred_lines[pred_id], gt_lines[i], 'euclidean')
-                    
+
                     valid_ab = (dist_mat.min(-1) < positive_threshold).sum()
                     valid_ba = (dist_mat.min(-2) < positive_threshold).sum()
 
@@ -181,7 +181,7 @@ def polyline_score(pred_lines, gt_lines, linewidth=1., metric='POR'):
                 elif metric=='chamfer':
                     dist_mat = distance.cdist(
                         pred_lines[pred_id], gt_lines[i], 'euclidean')
-                    
+
                     valid_ab = dist_mat.min(-1).sum()
                     valid_ba = dist_mat.min(-2).sum()
 
@@ -191,7 +191,7 @@ def polyline_score(pred_lines, gt_lines, linewidth=1., metric='POR'):
                 elif metric=='chamfer_v2':
                     dist_mat = distance.cdist(
                         pred_lines[pred_id], gt_lines[i], 'euclidean')
-                    
+
                     valid_ab = dist_mat.min(-1).sum()
                     valid_ba = dist_mat.min(-2).sum()
 
@@ -200,7 +200,7 @@ def polyline_score(pred_lines, gt_lines, linewidth=1., metric='POR'):
                     # if iou_matrix[pred_id, i] == 0:
                     #     import ipdb; ipdb.set_trace()
 
-    
+
     # if True:
     #     import matplotlib.pyplot as plt
     #     print('pred num', num_preds)
@@ -303,7 +303,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
     from shapely.geometry import LineString
     from descartes import PolygonPatch
-    
+
     iou_matrix = vec_iou(pred,gt)
     print(iou_matrix)
     # import pdb;pdb.set_trace()
@@ -332,4 +332,4 @@ if __name__ == '__main__':
     ax.axis('equal')
 
 
-    plt.savefig('test3.png')    
+    plt.savefig('test3.png')

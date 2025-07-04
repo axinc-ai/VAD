@@ -17,4 +17,3 @@ def run_time(name):
             return res
         return wrapper
     return middle
-    

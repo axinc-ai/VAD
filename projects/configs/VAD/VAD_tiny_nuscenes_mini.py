@@ -12,7 +12,7 @@ point_cloud_range = [-15.0, -30.0, -2.0, 15.0, 30.0, 2.0]
 voxel_size = [0.15, 0.15, 4]
 
 img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+    mean=[103.530, 116.280, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
 # For nuScenes we usually do 10-class detection
 class_names = [
     'car', 'truck', 'construction_vehicle', 'bus', 'trailer', 'barrier',
@@ -38,10 +38,10 @@ input_modality = dict(
 _dim_ = 256
 _pos_dim_ = _dim_//2
 _ffn_dim_ = _dim_*2
-_num_levels_ = 4
-bev_h_ = 200
-bev_w_ = 200
-queue_length = 4 # each sequence contains `queue_length` frames.
+_num_levels_ = 1
+bev_h_ = 100
+bev_w_ = 100
+queue_length = 3 # each sequence contains `queue_length` frames.
 total_epochs = 12
 
 model = dict(
@@ -53,14 +53,14 @@ model = dict(
         type='ResNet',
         depth=50,
         num_stages=4,
-        out_indices=(1, 2, 3),
+        out_indices=(3,),
         frozen_stages=1,
         norm_cfg=dict(type='BN', requires_grad=False),
         norm_eval=True,
         style='pytorch'),
     img_neck=dict(
         type='FPN',
-        in_channels=[512, 1024, 2048],
+        in_channels=[2048],
         out_channels=_dim_,
         start_level=0,
         add_extra_convs='on_output',
@@ -171,7 +171,7 @@ model = dict(
             embed_dims=_dim_,
             encoder=dict(
                 type='BEVFormerEncoder',
-                num_layers=6,
+                num_layers=3,
                 pc_range=point_cloud_range,
                 num_points_in_pillar=4,
                 return_intermediate=False,
@@ -199,7 +199,7 @@ model = dict(
                                      'ffn', 'norm'))),
             decoder=dict(
                 type='DetectionTransformerDecoder',
-                num_layers=6,
+                num_layers=3,
                 return_intermediate=True,
                 transformerlayers=dict(
                     type='DetrTransformerDecoderLayer',
@@ -220,7 +220,7 @@ model = dict(
                                      'ffn', 'norm'))),
             map_decoder=dict(
                 type='MapDetectionTransformerDecoder',
-                num_layers=6,
+                num_layers=3,
                 return_intermediate=True,
                 transformerlayers=dict(
                     type='DetrTransformerDecoderLayer',
@@ -309,7 +309,7 @@ model = dict(
             pc_range=point_cloud_range))))
 
 dataset_type = 'VADCustomNuScenesDataset'
-data_root = 'data/nuscenes/'
+data_root = 'data/nuscenes-mini/'
 file_client_args = dict(backend='disk')
 
 train_pipeline = [
@@ -319,7 +319,7 @@ train_pipeline = [
     dict(type='CustomObjectRangeFilter', point_cloud_range=point_cloud_range),
     dict(type='CustomObjectNameFilter', classes=class_names),
     dict(type='NormalizeMultiviewImage', **img_norm_cfg),
-    dict(type='RandomScaleImageMultiViewImage', scales=[0.8]),
+    dict(type='RandomScaleImageMultiViewImage', scales=[0.4]),
     dict(type='PadMultiViewImage', size_divisor=32),
     dict(type='CustomDefaultFormatBundle3D', class_names=class_names, with_ego=True),
     dict(type='CustomCollect3D',\
@@ -345,7 +345,7 @@ test_pipeline = [
         pts_scale_ratio=1,
         flip=False,
         transforms=[
-            dict(type='RandomScaleImageMultiViewImage', scales=[0.8]),
+            dict(type='RandomScaleImageMultiViewImage', scales=[0.4]),
             dict(type='PadMultiViewImage', size_divisor=32),
             dict(type='CustomDefaultFormatBundle3D', class_names=class_names, with_label=False, with_ego=True),
             dict(type='CustomCollect3D',\
@@ -360,7 +360,7 @@ data = dict(
     train=dict(
         type=dataset_type,
         data_root=data_root,
-        ann_file=data_root + 'vad_nuscenes_infos_temporal_train.pkl',
+        ann_file=data_root + 'vad_nuscenes_mini_infos_temporal_train.pkl',
         pipeline=train_pipeline,
         classes=class_names,
         modality=input_modality,
@@ -379,11 +379,11 @@ data = dict(
     val=dict(type=dataset_type,
              data_root=data_root,
              pc_range=point_cloud_range,
-             ann_file=data_root + 'vad_nuscenes_infos_temporal_val.pkl',
+             ann_file=data_root + 'vad_nuscenes_mini_infos_temporal_val.pkl',
              pipeline=test_pipeline,  bev_size=(bev_h_, bev_w_),
              classes=class_names, modality=input_modality, samples_per_gpu=1,
              map_classes=map_classes,
-             map_ann_file=data_root + 'nuscenes_map_anns_val.json',
+             # map_ann_file=data_root + 'nuscenes_map_anns_val.json',
              map_fixed_ptsnum_per_line=map_fixed_ptsnum_per_gt_line,
              map_eval_use_same_gt_sample_num_flag=map_eval_use_same_gt_sample_num_flag,
              use_pkl_result=True,
@@ -391,7 +391,7 @@ data = dict(
     test=dict(type=dataset_type,
               data_root=data_root,
               pc_range=point_cloud_range,
-              ann_file=data_root + 'vad_nuscenes_infos_temporal_val.pkl',
+              ann_file=data_root + 'vad_nuscenes_mini_infos_temporal_val.pkl',
               pipeline=test_pipeline, bev_size=(bev_h_, bev_w_),
               classes=class_names, modality=input_modality, samples_per_gpu=1,
               map_classes=map_classes,
@@ -425,7 +425,7 @@ lr_config = dict(
 evaluation = dict(interval=total_epochs, pipeline=test_pipeline, metric='bbox', map_metric='chamfer')
 
 runner = dict(type='EpochBasedRunner', max_epochs=total_epochs)
-load_from = 'ckpts/VAD_base_stage_1.pth'
+load_from = 'ckpts/VAD_tiny_stage_1.pth'
 log_config = dict(
     interval=100,
     hooks=[

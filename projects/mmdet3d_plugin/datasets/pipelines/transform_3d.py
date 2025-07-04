@@ -128,7 +128,7 @@ class PadMultiViewImage(object):
         elif self.size_divisor is not None:
             padded_img = [mmcv.impad_to_multiple(
                 img, self.size_divisor, pad_val=self.pad_val) for img in results['img']]
-        
+
         results['ori_shape'] = [img.shape for img in results['img']]
         results['img'] = padded_img
         results['img_shape'] = [img.shape for img in padded_img]
@@ -361,10 +361,10 @@ class CustomCollect3D(object):
                 - keys in ``self.keys``
                 - ``img_metas``
         """
-       
+
         data = {}
         img_metas = {}
-      
+
         for key in self.meta_keys:
             if key in results:
                 img_metas[key] = results[key]
@@ -421,7 +421,7 @@ class RandomScaleImageMultiViewImage(object):
         repr_str = self.__class__.__name__
         repr_str += f'(size={self.scales}, '
         return repr_str
-    
+
 
 @PIPELINES.register_module()
 class CustomPointsRangeFilter:

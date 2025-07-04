@@ -5,7 +5,7 @@ from mmcv.parallel import is_module_wrapper
 
 @HOOKS.register_module()
 class TransferWeight(Hook):
-    
+
     def __init__(self, every_n_inters=1):
         self.every_n_inters=every_n_inters
 

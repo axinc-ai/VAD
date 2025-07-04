@@ -159,9 +159,9 @@ def segments_intersect(line1_start, line1_end, line2_start, line2_end):
     parallel_mask = torch.logical_not(det_mask)
 
     # Calculating intersection parameters
-    t1 = ((line2_start[:, 0] - line1_start[:, 0]) * dy2 
+    t1 = ((line2_start[:, 0] - line1_start[:, 0]) * dy2
           - (line2_start[:, 1] - line1_start[:, 1]) * dx2) / det
-    t2 = ((line2_start[:, 0] - line1_start[:, 0]) * dy1 
+    t2 = ((line2_start[:, 0] - line1_start[:, 0]) * dy1
           - (line2_start[:, 1] - line1_start[:, 1]) * dx1) / det
 
     # Checking intersection conditions
