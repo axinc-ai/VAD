@@ -40,29 +40,39 @@ pip install mmsegmentation==0.14.1
 pip install timm
 ```
 
-**f. Install mmdet3d.**
-```shell
-conda activate vad
-git clone https://github.com/open-mmlab/mmdetection3d.git
-cd /path/to/mmdetection3d
-git checkout -f v0.17.1
-python setup.py develop
-```
-
-**g. Install nuscenes-devkit.**
+**f. Install nuscenes-devkit.**
 ```shell
 pip install nuscenes-devkit==1.1.9
+```
+
+**g. Install mmdet3d.**
+```shell
+git clone https://github.com/open-mmlab/mmdetection3d.git
+cd mmdetection3d
+git checkout -f v0.17.1
+pip install -v -e .  # Takes time to build
+cd -
+```
+
+**h. Install other dependencies.**
+```shell
+pip install similaritymeasures==0.7.0
+pip install -U Shapely==1.8.5  # Downgrade to solve issue #29
 ```
 
 **h. Clone VAD.**
 ```shell
 git clone https://github.com/hustvl/VAD.git
+cd VAD
+PROJECT_DIR=$(pwd)
+mkdir data
 ```
 
 **i. Prepare pretrained models.**
 ```shell
-cd /path/to/VAD
+cd ${PROJECT_DIR}
 mkdir ckpts
 cd ckpts
-wget https://download.pytorch.org/models/resnet50-19c8e357.pth
+wget https://download.pytorch.org/models/resnet50-19c8e357.pth  # For training
+# Place VAD_base and VAD_tiny pretrained models in this `ckpts` folder too.
 ```
