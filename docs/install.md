@@ -60,7 +60,7 @@ pip install similaritymeasures==0.7.0
 pip install -U Shapely==1.8.5  # Downgrade to solve issue #29
 ```
 
-**h. Clone VAD.**
+**i. Clone VAD.**
 ```shell
 git clone https://github.com/hustvl/VAD.git
 cd VAD
@@ -68,7 +68,7 @@ PROJECT_DIR=$(pwd)
 mkdir data
 ```
 
-**i. Prepare pretrained models.**
+**j. Prepare pretrained models.**
 ```shell
 cd ${PROJECT_DIR}
 mkdir ckpts
